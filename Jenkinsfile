@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_OPTS = "-Xmx1024m"
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk'
+        MAVEN_HOME = '/usr/share/maven'
         SONAR_HOST_URL = "http://sonarqube:9000"
-        SONAR_TOKEN = credentials('sonar-token')
+        SONAR_LOGIN = credentials('sonar-token')
     }
 
     stages {
@@ -39,12 +40,11 @@ pipeline {
 
         stage('SonarQube') {
             steps {
-                sh """
-                mvn sonar:sonar ^
-                  -Dsonar.projectKey=voting-system ^
-                  -Dsonar.host.url=http://sonarqube:9000 ^
-                  -Dsonar.login=%SONAR_TOKEN%
-                """
+                sh '''
+                    mvn sonar:sonar \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_LOGIN}
+                '''
             }
         }
 
@@ -57,6 +57,16 @@ pipeline {
                     archiveArtifacts artifacts: 'target/*.jar'
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            publishHTML([
+                reportDir: 'target/site/jacoco',
+                reportFiles: 'index.html',
+                reportName: 'JaCoCo Coverage'
+            ])
         }
     }
 }

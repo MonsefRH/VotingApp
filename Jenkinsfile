@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk'
-        MAVEN_HOME = '/usr/share/maven'
-        SONAR_HOST_URL = credentials('sonar-host-url')
-        SONAR_LOGIN = credentials('sonar-token')
+        MAVEN_OPTS = "-Xmx1024m"
+        SONAR_HOST_URL = "http://sonarqube:9000"
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -17,13 +16,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                bat 'mvn clean compile'
             }
         }
 
         stage('Tests') {
             steps {
-                sh 'mvn test'
+                bat 'mvn test'
             }
             post {
                 always {
@@ -34,39 +33,30 @@ pipeline {
 
         stage('Coverage') {
             steps {
-                sh 'mvn jacoco:report'
+                bat 'mvn jacoco:report'
             }
         }
 
         stage('SonarQube') {
             steps {
-                sh '''
-                    mvn sonar:sonar \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_LOGIN}
-                '''
+                bat """
+                mvn sonar:sonar ^
+                  -Dsonar.projectKey=voting-system ^
+                  -Dsonar.host.url=http://sonarqube:9000 ^
+                  -Dsonar.login=%SONAR_TOKEN%
+                """
             }
         }
 
         stage('Package') {
             steps {
-                sh 'mvn package -DskipTests'
+                bat 'mvn package -DskipTests'
             }
             post {
                 always {
                     archiveArtifacts artifacts: 'target/*.jar'
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            publishHTML([
-                reportDir: 'target/site/jacoco',
-                reportFiles: 'index.html',
-                reportName: 'JaCoCo Coverage'
-            ])
         }
     }
 }

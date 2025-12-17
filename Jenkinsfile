@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-            docker {
-                image 'maven:3.9.9-openjdk-21'  
-                args '-v $HOME/.m2:/root/.m2'  
-            }
-        }
+    agent any
 
     environment {
         SONAR_HOST_URL = credentials('sonar-host-url')

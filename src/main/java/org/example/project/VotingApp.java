@@ -9,24 +9,7 @@ import org.example.project.strategy.*;
 
 import java.util.*;
 
-/**
- * Application CLI pour le système de vote refactorisé.
- *
- * PROBLÈME RÉSOLU :
- * Avant : SpaghettiVotingApp mélangeait UI, logique, et persistance (450+ lignes chaotiques)
- * Après  : VotingApp = UNIQUEMENT l'interface (commandes CLI)
- *
- * La logique est déléguée à :
- * - VoteService (logique métier)
- * - Repositories (persistance)
- * - Strategies (algorithmes)
- * - Listeners (notifications)
- *
- * Démontre les 3 patterns :
- * 1. Factory Pattern : RepositoryFactory crée les repositories
- * 2. Strategy Pattern : Différents algorithmes de comptage
- * 3. Observer Pattern : LoggingVoteListener + AuditVoteListener
- */
+
 public class VotingApp {
 
     private final VoteService service;
@@ -41,22 +24,15 @@ public class VotingApp {
         initialize();
     }
 
-    /**
-     * Initialise l'application avec les données par défaut.
-     */
     private void initialize() {
         // Ajouter les candidats par défaut
         service.addCandidate("C1", "Alice");
         service.addCandidate("C2", "Bob");
 
-        // Enregistrer les observateurs
         service.addListener(new LoggingVoteListener());
         service.addListener(new AuditVoteListener());
     }
 
-    /**
-     * Démarre la boucle interactive.
-     */
     public void start() {
         System.out.println("╔════════════════════════════════════════════╗");
         System.out.println("║       VOTING SYSTEM (Refactored)          ║");
@@ -89,9 +65,6 @@ public class VotingApp {
 
     }
 
-    /**
-     * Gère la commande 'vote'.
-     */
     private void handleVote() {
         System.out.print("Enter voter name: ");
         String voterName = scanner.nextLine().trim();
@@ -101,10 +74,8 @@ public class VotingApp {
             return;
         }
 
-        // Générer un ID unique pour le votant
         String voterId = "V_" + System.currentTimeMillis();
 
-        // Enregistrer le votant
         service.registerVoter(voterId, voterName);
 
         // Afficher les candidats
@@ -116,20 +87,15 @@ public class VotingApp {
         System.out.print("\nEnter candidate ID to vote for: ");
         String candidateId = scanner.nextLine().trim();
 
-        // Enregistrer le vote
         service.castVote(voterId, candidateId);
     }
 
-    /**
-     * Gère la commande 'count'.
-     */
     private void handleCount() {
         if (service.getTotalVoteCount() == 0) {
             System.out.println("⚠️  No votes yet.");
             return;
         }
 
-        // Afficher les résultats avec Plurality
         System.out.println("\n📊 Results (Plurality Strategy):");
         Map<String, Integer> results = service.countVotes(new PluralityCountingStrategy());
         displayResults(results);
@@ -140,7 +106,6 @@ public class VotingApp {
             System.out.printf("\n🏆 Winner: %s%n", winner.getName());
         }
 
-        // Optionnel : Afficher avec une autre stratégie
         System.out.println("\n📊 Results (Ranked Choice Strategy):");
         Map<String, Integer> rankedResults = service.countVotes(new RankedChoiceCountingStrategy());
         displayResults(rankedResults);
@@ -151,9 +116,7 @@ public class VotingApp {
         }
     }
 
-    /**
-     * Affiche les résultats de comptage.
-     */
+
     private void displayResults(Map<String, Integer> results) {
         results.entrySet().stream()
                 .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
@@ -174,9 +137,6 @@ public class VotingApp {
         System.out.printf("  Total: %d votes%n", total);
     }
 
-    /**
-     * Gère la commande 'add'.
-     */
     private void handleAddCandidate() {
         System.out.print("Enter candidate ID: ");
         String id = scanner.nextLine().trim();
@@ -187,9 +147,7 @@ public class VotingApp {
         service.addCandidate(id, name);
     }
 
-    /**
-     * Gère la commande 'list'.
-     */
+
     private void handleListCandidates() {
         List<Candidate> candidates = service.getCandidates();
         if (candidates.isEmpty()) {
@@ -203,9 +161,6 @@ public class VotingApp {
         }
     }
 
-    /**
-     * Gère la commande 'voters'.
-     */
     private void handleListVoters() {
         List<Voter> voters = service.getVoters();
         if (voters.isEmpty()) {
@@ -219,9 +174,6 @@ public class VotingApp {
         }
     }
 
-    /**
-     * Gère la commande 'reset'.
-     */
     private void handleReset() {
         System.out.print("Are you sure? (yes/no): ");
         String confirm = scanner.nextLine().trim().toLowerCase();
@@ -233,7 +185,6 @@ public class VotingApp {
         }
     }
 
-    // ==================== MAIN ====================
 
     public static void main(String[] args) {
         // Factory Pattern : Créer les repositories

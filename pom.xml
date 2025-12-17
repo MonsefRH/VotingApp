@@ -13,7 +13,9 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.3</junit.version>
-        <jacoco.maven.plugin.version>0.8.12</jacoco.maven.plugin.version>    </properties>
+        <jacoco.maven.plugin.version>0.8.12</jacoco.maven.plugin.version>
+        <sonar.maven.plugin.version>3.9.1.2184</sonar.maven.plugin.version>
+    </properties>
 
     <dependencies>
         <!-- JUnit 5 (Jupiter) -->
@@ -97,10 +99,8 @@
                         <configuration>
                             <rules>
                                 <rule>
-                                    <!-- ⚠️ IMPORTANT: Exclure le package racine qui ne contient pas de code -->
                                     <!-- Cibler uniquement les sous-packages avec du code -->
                                     <element>PACKAGE</element>
-                                    <!-- Exclure: org.example.project (vide), *Test (tests) -->
                                     <includes>
                                         <include>org.example.project.*</include>
                                     </includes>
@@ -152,7 +152,36 @@
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.3.1</version>
             </plugin>
+
+            <!-- SonarQube Maven Plugin -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar.maven.plugin.version}</version>
+            </plugin>
+
         </plugins>
     </build>
+    <!-- ========== SonarQube Configuration ========== -->
+    <profiles>
+        <profile>
+            <id>sonar</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Defaults pour SonarQube (override en CLI si besoin) -->
+                <sonar.host.url>http://localhost:9000</sonar.host.url>
+                <sonar.projectKey>voting-system</sonar.projectKey>
+                <sonar.projectName>Voting System</sonar.projectName>
+                <sonar.projectVersion>1.0.0</sonar.projectVersion>
+                <sonar.sources>src/main/java</sonar.sources>
+                <sonar.tests>src/test/java</sonar.tests>
+                <sonar.java.binaries>target/classes</sonar.java.binaries>
+                <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
+                <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

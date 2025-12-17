@@ -5,14 +5,6 @@ import org.example.project.model.Vote;
 
 import java.util.*;
 
-/**
- * Implémentation d'observateur pour l'audit.
- * Enregistre tous les votes pour traçabilité et détection de fraude.
- *
- * PROBLÈME RÉSOLU :
- * Avant : Pas de vérification des votes en double
- * Après  : Détecte et enregistre les tentatives de vote en double
- */
 public class AuditVoteListener implements VoteListener {
 
     private final List<Vote> auditLog = Collections.synchronizedList(new ArrayList<>());
@@ -35,30 +27,18 @@ public class AuditVoteListener implements VoteListener {
         }
     }
 
-    /**
-     * Récupère le journal d'audit.
-     */
     public List<Vote> getAuditLog() {
         return new ArrayList<>(auditLog);
     }
 
-    /**
-     * Retourne le nombre de votes audités.
-     */
     public int getVoteCount() {
         return auditLog.size();
     }
 
-    /**
-     * Récupère le nombre de votes par électeur.
-     */
     public Map<String, Integer> getVoterVoteCount() {
         return new HashMap<>(voterVoteCount);
     }
 
-    /**
-     * Réinitialise le journal d'audit.
-     */
     public void clearAudit() {
         auditLog.clear();
         voterVoteCount.clear();

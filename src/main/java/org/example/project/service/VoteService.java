@@ -8,20 +8,6 @@ import org.example.project.observer.VoteListener;
 
 import java.util.*;
 
-/**
- * Service métier pour la gestion des votes.
- * Orchestre les patterns : Factory, Strategy, Observer.
- *
- * PROBLÈME RÉSOLU :
- * Avant : SpaghettiVotingApp mélange UI, logique métier, et persistance
- * Après  : VoteService encapsule UNIQUEMENT la logique métier
- *
- * Responsabilités :
- * - Enregistrement des votes
- * - Notification des observateurs
- * - Comptage selon une stratégie
- * - Gestion du cycle de vie
- */
 public class VoteService {
 
     private final VoteRepository voteRepository;
@@ -47,11 +33,7 @@ public class VoteService {
         this.voterRepository = voterRepository;
     }
 
-    // ==================== CANDIDATS ====================
 
-    /**
-     * Ajoute un candidat.
-     */
     public void addCandidate(String id, String name) {
         if (id == null || id.isBlank() || name == null || name.isBlank()) {
             throw new IllegalArgumentException("ID and name cannot be null or blank");
@@ -62,18 +44,11 @@ public class VoteService {
         System.out.printf("✓ Candidate added: %s%n", name);
     }
 
-    /**
-     * Récupère tous les candidats.
-     */
+
     public List<Candidate> getCandidates() {
         return candidateRepository.findAll();
     }
 
-    // ==================== ÉLECTEURS ====================
-
-    /**
-     * Enregistre un électeur.
-     */
     public void registerVoter(String id, String name) {
         if (id == null || id.isBlank() || name == null || name.isBlank()) {
             throw new IllegalArgumentException("ID and name cannot be null or blank");
@@ -83,30 +58,14 @@ public class VoteService {
         voterRepository.register(voter);
     }
 
-    /**
-     * Récupère tous les électeurs enregistrés.
-     */
     public List<Voter> getVoters() {
         return voterRepository.findAll();
     }
 
-    /**
-     * Vérifie si un électeur a déjà voté.
-     */
     public boolean hasVoted(String voterId) {
         return voteRepository.hasVoted(voterId);
     }
 
-    // ==================== VOTES ====================
-
-    /**
-     * Enregistre un vote et notifie les observateurs.
-     *
-     * @param voterId l'ID du votant
-     * @param candidateId l'ID du candidat
-     * @throws IllegalArgumentException si le votant/candidat n'existe pas
-     * @throws IllegalStateException si le votant a déjà voté
-     */
     public void castVote(String voterId, String candidateId) {
         if (voterId == null || voterId.isBlank()) {
             throw new IllegalArgumentException("Voter ID cannot be null or blank");
@@ -115,19 +74,16 @@ public class VoteService {
             throw new IllegalArgumentException("Candidate ID cannot be null or blank");
         }
 
-        // Vérifier que le votant existe
         Voter voter = voterRepository.findById(voterId);
         if (voter == null) {
             throw new IllegalArgumentException("Voter not registered: " + voterId);
         }
 
-        // Vérifier que le candidat existe
         Candidate candidate = candidateRepository.findById(candidateId);
         if (candidate == null) {
             throw new IllegalArgumentException("Candidate does not exist: " + candidateId);
         }
 
-        // Vérifier que le votant n'a pas déjà voté
         if (hasVoted(voterId)) {
             throw new IllegalStateException("Voter " + voter.getName() + " has already voted!");
         }
@@ -140,9 +96,6 @@ public class VoteService {
         notifyListeners(vote);
     }
 
-    /**
-     * Compte les votes selon la stratégie spécifiée.
-     */
     public Map<String, Integer> countVotes(CountingStrategy strategy) {
         if (strategy == null) {
             throw new IllegalArgumentException("Counting strategy cannot be null");
@@ -150,9 +103,6 @@ public class VoteService {
         return strategy.count(voteRepository.findAll());
     }
 
-    /**
-     * Récupère le gagnant selon une stratégie.
-     */
     public Candidate getWinner(CountingStrategy strategy) {
         Map<String, Integer> results = countVotes(strategy);
 
@@ -168,41 +118,27 @@ public class VoteService {
         return candidateRepository.findById(winnerId);
     }
 
-    /**
-     * Retourne le nombre total de votes.
-     */
     public int getTotalVoteCount() {
         return voteRepository.count();
     }
 
-    /**
-     * Récupère tous les votes enregistrés.
-     */
+
     public List<Vote> getAllVotes() {
         return voteRepository.findAll();
     }
 
-    // ==================== OBSERVATEURS ====================
 
-    /**
-     * Enregistre un observateur de votes.
-     */
     public void addListener(VoteListener listener) {
         if (listener != null) {
             listeners.add(listener);
         }
     }
 
-    /**
-     * Supprime un observateur de votes.
-     */
+
     public void removeListener(VoteListener listener) {
         listeners.remove(listener);
     }
 
-    /**
-     * Notifie tous les observateurs d'un vote.
-     */
     private void notifyListeners(Vote vote) {
         for (VoteListener listener : new ArrayList<>(listeners)) {
             try {
@@ -213,11 +149,6 @@ public class VoteService {
         }
     }
 
-    // ==================== GESTION DU CYCLE DE VIE ====================
-
-    /**
-     * Réinitialise le système (pour les tests ou reset manuel).
-     */
     public void reset() {
         voteRepository.clear();
         candidateRepository.clear();

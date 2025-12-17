@@ -16,13 +16,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'mvn clean compile'
+                sh 'mvn clean compile'
             }
         }
 
         stage('Tests') {
             steps {
-                bat 'mvn test'
+                sh 'mvn test'
             }
             post {
                 always {
@@ -33,13 +33,13 @@ pipeline {
 
         stage('Coverage') {
             steps {
-                bat 'mvn jacoco:report'
+                sh 'mvn jacoco:report'
             }
         }
 
         stage('SonarQube') {
             steps {
-                bat """
+                sh """
                 mvn sonar:sonar ^
                   -Dsonar.projectKey=voting-system ^
                   -Dsonar.host.url=http://sonarqube:9000 ^
@@ -50,7 +50,7 @@ pipeline {
 
         stage('Package') {
             steps {
-                bat 'mvn package -DskipTests'
+                sh 'mvn package -DskipTests'
             }
             post {
                 always {

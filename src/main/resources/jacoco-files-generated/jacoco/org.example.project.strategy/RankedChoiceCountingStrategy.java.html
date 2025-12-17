@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RankedChoiceCountingStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VotingApp</a> &gt; <a href="index.source.html" class="el_package">org.example.project.strategy</a> &gt; <span class="el_source">RankedChoiceCountingStrategy.java</span></div><h1>RankedChoiceCountingStrategy.java</h1><pre class="source lang-java linenums">package org.example.project.strategy;
+
+import org.example.project.model.Vote;
+
+import java.util.*;
+
+<span class="fc" id="L7">public class RankedChoiceCountingStrategy implements CountingStrategy {</span>
+
+    @Override
+    public Map&lt;String, Integer&gt; count(List&lt;Vote&gt; votes) {
+<span class="fc" id="L11">        Map&lt;String, Integer&gt; results = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L13">        List&lt;Vote&gt; sortedVotes = new ArrayList&lt;&gt;(votes);</span>
+<span class="fc" id="L14">        sortedVotes.sort(Comparator.comparingLong(Vote::getTimestamp));</span>
+
+<span class="fc bfc" id="L16" title="All 2 branches covered.">        for (int i = 0; i &lt; sortedVotes.size(); i++) {</span>
+<span class="fc" id="L17">            Vote vote = sortedVotes.get(i);</span>
+<span class="fc" id="L18">            int weight = i + 1;  // Poids commence à 1</span>
+<span class="fc" id="L19">            results.merge(vote.getCandidateId(), weight, Integer::sum);</span>
+        }
+
+<span class="fc" id="L22">        return results;</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="fc" id="L27">        return &quot;Ranked Choice (Weighted by Order)&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

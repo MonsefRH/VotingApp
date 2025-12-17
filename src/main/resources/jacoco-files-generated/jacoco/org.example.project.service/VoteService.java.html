@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VoteService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VotingApp</a> &gt; <a href="index.source.html" class="el_package">org.example.project.service</a> &gt; <span class="el_source">VoteService.java</span></div><h1>VoteService.java</h1><pre class="source lang-java linenums">package org.example.project.service;
+
+
+import org.example.project.model.*;
+import org.example.project.repo.*;
+import org.example.project.strategy.CountingStrategy;
+import org.example.project.observer.VoteListener;
+
+import java.util.*;
+
+public class VoteService {
+
+    private final VoteRepository voteRepository;
+    private final CandidateRepository candidateRepository;
+    private final VoterRepository voterRepository;
+<span class="fc" id="L16">    private final List&lt;VoteListener&gt; listeners = Collections.synchronizedList(new ArrayList&lt;&gt;());</span>
+
+    public VoteService(VoteRepository voteRepository,
+                       CandidateRepository candidateRepository,
+<span class="fc" id="L20">                       VoterRepository voterRepository) {</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (voteRepository == null) {</span>
+<span class="nc" id="L22">            throw new IllegalArgumentException(&quot;VoteRepository cannot be null&quot;);</span>
+        }
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        if (candidateRepository == null) {</span>
+<span class="nc" id="L25">            throw new IllegalArgumentException(&quot;CandidateRepository cannot be null&quot;);</span>
+        }
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (voterRepository == null) {</span>
+<span class="nc" id="L28">            throw new IllegalArgumentException(&quot;VoterRepository cannot be null&quot;);</span>
+        }
+
+<span class="fc" id="L31">        this.voteRepository = voteRepository;</span>
+<span class="fc" id="L32">        this.candidateRepository = candidateRepository;</span>
+<span class="fc" id="L33">        this.voterRepository = voterRepository;</span>
+<span class="fc" id="L34">    }</span>
+
+
+    public void addCandidate(String id, String name) {
+<span class="pc bpc" id="L38" title="3 of 8 branches missed.">        if (id == null || id.isBlank() || name == null || name.isBlank()) {</span>
+<span class="fc" id="L39">            throw new IllegalArgumentException(&quot;ID and name cannot be null or blank&quot;);</span>
+        }
+
+<span class="fc" id="L42">        Candidate candidate = new Candidate(id, name);</span>
+<span class="fc" id="L43">        candidateRepository.add(candidate);</span>
+<span class="fc" id="L44">        System.out.printf(&quot;✓ Candidate added: %s%n&quot;, name);</span>
+<span class="fc" id="L45">    }</span>
+
+
+    public List&lt;Candidate&gt; getCandidates() {
+<span class="fc" id="L49">        return candidateRepository.findAll();</span>
+    }
+
+    public void registerVoter(String id, String name) {
+<span class="pc bpc" id="L53" title="4 of 8 branches missed.">        if (id == null || id.isBlank() || name == null || name.isBlank()) {</span>
+<span class="nc" id="L54">            throw new IllegalArgumentException(&quot;ID and name cannot be null or blank&quot;);</span>
+        }
+
+<span class="fc" id="L57">        Voter voter = new Voter(id, name);</span>
+<span class="fc" id="L58">        voterRepository.register(voter);</span>
+<span class="fc" id="L59">    }</span>
+
+    public List&lt;Voter&gt; getVoters() {
+<span class="fc" id="L62">        return voterRepository.findAll();</span>
+    }
+
+    public boolean hasVoted(String voterId) {
+<span class="fc" id="L66">        return voteRepository.hasVoted(voterId);</span>
+    }
+
+    public void castVote(String voterId, String candidateId) {
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">        if (voterId == null || voterId.isBlank()) {</span>
+<span class="nc" id="L71">            throw new IllegalArgumentException(&quot;Voter ID cannot be null or blank&quot;);</span>
+        }
+<span class="pc bpc" id="L73" title="2 of 4 branches missed.">        if (candidateId == null || candidateId.isBlank()) {</span>
+<span class="nc" id="L74">            throw new IllegalArgumentException(&quot;Candidate ID cannot be null or blank&quot;);</span>
+        }
+
+<span class="fc" id="L77">        Voter voter = voterRepository.findById(voterId);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (voter == null) {</span>
+<span class="fc" id="L79">            throw new IllegalArgumentException(&quot;Voter not registered: &quot; + voterId);</span>
+        }
+
+<span class="fc" id="L82">        Candidate candidate = candidateRepository.findById(candidateId);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (candidate == null) {</span>
+<span class="fc" id="L84">            throw new IllegalArgumentException(&quot;Candidate does not exist: &quot; + candidateId);</span>
+        }
+
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (hasVoted(voterId)) {</span>
+<span class="fc" id="L88">            throw new IllegalStateException(&quot;Voter &quot; + voter.getName() + &quot; has already voted!&quot;);</span>
+        }
+
+        // Créer et sauvegarder le vote
+<span class="fc" id="L92">        Vote vote = new Vote(voterId, voter.getName(), candidateId, candidate.getName());</span>
+<span class="fc" id="L93">        voteRepository.save(vote);</span>
+
+        // Notifier les observateurs (Observer pattern)
+<span class="fc" id="L96">        notifyListeners(vote);</span>
+<span class="fc" id="L97">    }</span>
+
+    public Map&lt;String, Integer&gt; countVotes(CountingStrategy strategy) {
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (strategy == null) {</span>
+<span class="nc" id="L101">            throw new IllegalArgumentException(&quot;Counting strategy cannot be null&quot;);</span>
+        }
+<span class="fc" id="L103">        return strategy.count(voteRepository.findAll());</span>
+    }
+
+    public Candidate getWinner(CountingStrategy strategy) {
+<span class="fc" id="L107">        Map&lt;String, Integer&gt; results = countVotes(strategy);</span>
+
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (results.isEmpty()) {</span>
+<span class="nc" id="L110">            return null;  // Aucun vote</span>
+        }
+
+<span class="fc" id="L113">        String winnerId = results.entrySet().stream()</span>
+<span class="fc" id="L114">                .max(Comparator.comparingInt(Map.Entry::getValue))</span>
+<span class="fc" id="L115">                .map(Map.Entry::getKey)</span>
+<span class="fc" id="L116">                .orElse(null);</span>
+
+<span class="fc" id="L118">        return candidateRepository.findById(winnerId);</span>
+    }
+
+    public int getTotalVoteCount() {
+<span class="fc" id="L122">        return voteRepository.count();</span>
+    }
+
+
+    public List&lt;Vote&gt; getAllVotes() {
+<span class="fc" id="L127">        return voteRepository.findAll();</span>
+    }
+
+
+    public void addListener(VoteListener listener) {
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        if (listener != null) {</span>
+<span class="fc" id="L133">            listeners.add(listener);</span>
+        }
+<span class="fc" id="L135">    }</span>
+
+
+    public void removeListener(VoteListener listener) {
+<span class="fc" id="L139">        listeners.remove(listener);</span>
+<span class="fc" id="L140">    }</span>
+
+    private void notifyListeners(Vote vote) {
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        for (VoteListener listener : new ArrayList&lt;&gt;(listeners)) {</span>
+            try {
+<span class="fc" id="L145">                listener.onVote(vote);</span>
+<span class="nc" id="L146">            } catch (Exception e) {</span>
+<span class="nc" id="L147">                System.err.printf(&quot;Error notifying listener: %s%n&quot;, e.getMessage());</span>
+<span class="fc" id="L148">            }</span>
+<span class="fc" id="L149">        }</span>
+<span class="fc" id="L150">    }</span>
+
+    public void reset() {
+<span class="fc" id="L153">        voteRepository.clear();</span>
+<span class="fc" id="L154">        candidateRepository.clear();</span>
+<span class="fc" id="L155">        voterRepository.clear();</span>
+<span class="fc" id="L156">        System.out.println(&quot;[SYSTEM] All data cleared&quot;);</span>
+<span class="fc" id="L157">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

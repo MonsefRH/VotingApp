@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RepositoryFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VotingApp</a> &gt; <a href="index.source.html" class="el_package">org.example.project.factory</a> &gt; <span class="el_source">RepositoryFactory.java</span></div><h1>RepositoryFactory.java</h1><pre class="source lang-java linenums">package org.example.project.factory;
+
+
+import org.example.project.repo.*;
+
+<span class="nc" id="L6">public class RepositoryFactory {</span>
+
+    public static VoteRepository createVoteRepository(String type) {
+<span class="pc bpc" id="L9" title="2 of 4 branches missed.">        if (type == null || type.isBlank()) {</span>
+<span class="nc" id="L10">            throw new IllegalArgumentException(&quot;Repository type cannot be null or blank&quot;);</span>
+        }
+
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        return switch (type.toLowerCase()) {</span>
+<span class="fc" id="L14">            case &quot;memory&quot; -&gt; new InMemoryVoteRepository();</span>
+<span class="fc" id="L15">            default -&gt; throw new IllegalArgumentException(&quot;Unknown vote repository type: &quot; + type);</span>
+        };
+    }
+
+
+    public static CandidateRepository createCandidateRepository(String type) {
+<span class="pc bpc" id="L21" title="2 of 4 branches missed.">        if (type == null || type.isBlank()) {</span>
+<span class="nc" id="L22">            throw new IllegalArgumentException(&quot;Repository type cannot be null or blank&quot;);</span>
+        }
+
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        return switch (type.toLowerCase()) {</span>
+<span class="fc" id="L26">            case &quot;memory&quot; -&gt; new InMemoryCandidateRepository();</span>
+<span class="nc" id="L27">            default -&gt; throw new IllegalArgumentException(&quot;Unknown candidate repository type: &quot; + type);</span>
+        };
+    }
+
+
+    public static VoterRepository createVoterRepository(String type) {
+<span class="pc bpc" id="L33" title="2 of 4 branches missed.">        if (type == null || type.isBlank()) {</span>
+<span class="nc" id="L34">            throw new IllegalArgumentException(&quot;Repository type cannot be null or blank&quot;);</span>
+        }
+
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        return switch (type.toLowerCase()) {</span>
+<span class="fc" id="L38">            case &quot;memory&quot; -&gt; new InMemoryVoterRepository();</span>
+<span class="nc" id="L39">            default -&gt; throw new IllegalArgumentException(&quot;Unknown voter repository type: &quot; + type);</span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

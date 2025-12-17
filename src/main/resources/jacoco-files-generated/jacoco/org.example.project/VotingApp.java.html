@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VotingApp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">VotingApp</a> &gt; <a href="index.source.html" class="el_package">org.example.project</a> &gt; <span class="el_source">VotingApp.java</span></div><h1>VotingApp.java</h1><pre class="source lang-java linenums">package org.example.project;
+
+
+import org.example.project.factory.RepositoryFactory;
+import org.example.project.model.*;
+import org.example.project.observer.*;
+import org.example.project.service.VoteService;
+import org.example.project.strategy.*;
+
+import java.util.*;
+
+
+public class VotingApp {
+
+    private final VoteService service;
+    private final Scanner scanner;
+
+    public VotingApp(VoteService service) {
+<span class="nc" id="L19">        this(service, new Scanner(System.in));</span>
+<span class="nc" id="L20">    }</span>
+<span class="fc" id="L21">    public VotingApp(VoteService service, Scanner scanner) {</span>
+<span class="fc" id="L22">        this.service = service;</span>
+<span class="fc" id="L23">        this.scanner = scanner;</span>
+<span class="fc" id="L24">        initialize();</span>
+<span class="fc" id="L25">    }</span>
+
+    private void initialize() {
+        // Ajouter les candidats par défaut
+<span class="fc" id="L29">        service.addCandidate(&quot;C1&quot;, &quot;Alice&quot;);</span>
+<span class="fc" id="L30">        service.addCandidate(&quot;C2&quot;, &quot;Bob&quot;);</span>
+
+<span class="fc" id="L32">        service.addListener(new LoggingVoteListener());</span>
+<span class="fc" id="L33">        service.addListener(new AuditVoteListener());</span>
+<span class="fc" id="L34">    }</span>
+
+    public void start() {
+<span class="fc" id="L37">        System.out.println(&quot;╔════════════════════════════════════════════╗&quot;);</span>
+<span class="fc" id="L38">        System.out.println(&quot;║       VOTING SYSTEM (Refactored)          ║&quot;);</span>
+<span class="fc" id="L39">        System.out.println(&quot;║   Commands: vote, count, add, reset, exit ║&quot;);</span>
+<span class="fc" id="L40">        System.out.println(&quot;╚════════════════════════════════════════════╝\n&quot;);</span>
+
+<span class="fc" id="L42">        boolean running = true;</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        while (running) {</span>
+<span class="fc" id="L44">            System.out.print(&quot;&gt;&gt;&gt; &quot;);</span>
+<span class="fc" id="L45">            String cmd = scanner.nextLine().trim().toLowerCase();</span>
+
+            try {
+<span class="pc bpc" id="L48" title="1 of 8 branches missed.">                switch (cmd) {</span>
+<span class="fc" id="L49">                    case &quot;vote&quot; -&gt; handleVote();</span>
+<span class="fc" id="L50">                    case &quot;count&quot; -&gt; handleCount();</span>
+<span class="fc" id="L51">                    case &quot;add&quot; -&gt; handleAddCandidate();</span>
+<span class="fc" id="L52">                    case &quot;reset&quot; -&gt; handleReset();</span>
+<span class="fc" id="L53">                    case &quot;list&quot; -&gt; handleListCandidates();</span>
+<span class="nc" id="L54">                    case &quot;voters&quot; -&gt; handleListVoters();</span>
+                    case &quot;exit&quot; -&gt; {
+<span class="fc" id="L56">                        System.out.println(&quot;Goodbye!&quot;);</span>
+<span class="fc" id="L57">                        running = false;</span>
+<span class="fc" id="L58">                    }</span>
+<span class="fc" id="L59">                    default -&gt; System.out.println(&quot;❌ Unknown command. Try: vote, count, add, list, voters, reset, exit&quot;);</span>
+                }
+<span class="nc" id="L61">            } catch (Exception e) {</span>
+<span class="nc" id="L62">                System.err.printf(&quot;❌ Error: %s%n&quot;, e.getMessage());</span>
+<span class="fc" id="L63">            }</span>
+<span class="fc" id="L64">        }</span>
+
+<span class="fc" id="L66">    }</span>
+
+    private void handleVote() {
+<span class="fc" id="L69">        System.out.print(&quot;Enter voter name: &quot;);</span>
+<span class="fc" id="L70">        String voterName = scanner.nextLine().trim();</span>
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (voterName.isBlank()) {</span>
+<span class="nc" id="L73">            System.out.println(&quot;❌ Voter name cannot be empty&quot;);</span>
+<span class="nc" id="L74">            return;</span>
+        }
+
+<span class="fc" id="L77">        String voterId = &quot;V_&quot; + System.currentTimeMillis();</span>
+
+<span class="fc" id="L79">        service.registerVoter(voterId, voterName);</span>
+
+        // Afficher les candidats
+<span class="fc" id="L82">        System.out.println(&quot;\n📋 Candidates:&quot;);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (Candidate c : service.getCandidates()) {</span>
+<span class="fc" id="L84">            System.out.printf(&quot;  - %s (ID: %s)%n&quot;, c.getName(), c.getId());</span>
+<span class="fc" id="L85">        }</span>
+
+<span class="fc" id="L87">        System.out.print(&quot;\nEnter candidate ID to vote for: &quot;);</span>
+<span class="fc" id="L88">        String candidateId = scanner.nextLine().trim();</span>
+
+<span class="fc" id="L90">        service.castVote(voterId, candidateId);</span>
+<span class="fc" id="L91">    }</span>
+
+    private void handleCount() {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (service.getTotalVoteCount() == 0) {</span>
+<span class="fc" id="L95">            System.out.println(&quot;⚠️  No votes yet.&quot;);</span>
+<span class="fc" id="L96">            return;</span>
+        }
+
+<span class="fc" id="L99">        System.out.println(&quot;\n📊 Results (Plurality Strategy):&quot;);</span>
+<span class="fc" id="L100">        Map&lt;String, Integer&gt; results = service.countVotes(new PluralityCountingStrategy());</span>
+<span class="fc" id="L101">        displayResults(results);</span>
+
+        // Afficher le gagnant
+<span class="fc" id="L104">        Candidate winner = service.getWinner(new PluralityCountingStrategy());</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (winner != null) {</span>
+<span class="fc" id="L106">            System.out.printf(&quot;\n🏆 Winner: %s%n&quot;, winner.getName());</span>
+        }
+
+<span class="fc" id="L109">        System.out.println(&quot;\n📊 Results (Ranked Choice Strategy):&quot;);</span>
+<span class="fc" id="L110">        Map&lt;String, Integer&gt; rankedResults = service.countVotes(new RankedChoiceCountingStrategy());</span>
+<span class="fc" id="L111">        displayResults(rankedResults);</span>
+
+<span class="fc" id="L113">        Candidate rankedWinner = service.getWinner(new RankedChoiceCountingStrategy());</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (rankedWinner != null) {</span>
+<span class="fc" id="L115">            System.out.printf(&quot;\n🏆 Winner (Ranked): %s%n&quot;, rankedWinner.getName());</span>
+        }
+<span class="fc" id="L117">    }</span>
+
+
+    private void displayResults(Map&lt;String, Integer&gt; results) {
+<span class="fc" id="L121">        results.entrySet().stream()</span>
+<span class="pc" id="L122">                .sorted((e1, e2) -&gt; Integer.compare(e2.getValue(), e1.getValue()))</span>
+<span class="fc" id="L123">                .forEach(e -&gt; {</span>
+<span class="fc" id="L124">                    Candidate c = null;</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">                    for (Candidate candidate : service.getCandidates()) {</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">                        if (candidate.getId().equals(e.getKey())) {</span>
+<span class="fc" id="L127">                            c = candidate;</span>
+<span class="fc" id="L128">                            break;</span>
+                        }
+<span class="nc" id="L130">                    }</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                    if (c != null) {</span>
+<span class="fc" id="L132">                        System.out.printf(&quot;  %s: %d votes%n&quot;, c.getName(), e.getValue());</span>
+                    }
+<span class="fc" id="L134">                });</span>
+
+<span class="fc" id="L136">        int total = results.values().stream().mapToInt(Integer::intValue).sum();</span>
+<span class="fc" id="L137">        System.out.printf(&quot;  Total: %d votes%n&quot;, total);</span>
+<span class="fc" id="L138">    }</span>
+
+    private void handleAddCandidate() {
+<span class="fc" id="L141">        System.out.print(&quot;Enter candidate ID: &quot;);</span>
+<span class="fc" id="L142">        String id = scanner.nextLine().trim();</span>
+
+<span class="fc" id="L144">        System.out.print(&quot;Enter candidate name: &quot;);</span>
+<span class="fc" id="L145">        String name = scanner.nextLine().trim();</span>
+
+<span class="fc" id="L147">        service.addCandidate(id, name);</span>
+<span class="fc" id="L148">    }</span>
+
+
+    private void handleListCandidates() {
+<span class="fc" id="L152">        List&lt;Candidate&gt; candidates = service.getCandidates();</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (candidates.isEmpty()) {</span>
+<span class="nc" id="L154">            System.out.println(&quot;⚠️  No candidates.&quot;);</span>
+<span class="nc" id="L155">            return;</span>
+        }
+
+<span class="fc" id="L158">        System.out.println(&quot;\n📋 Candidates:&quot;);</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        for (Candidate c : candidates) {</span>
+<span class="fc" id="L160">            System.out.printf(&quot;  - %s (ID: %s)%n&quot;, c.getName(), c.getId());</span>
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">    }</span>
+
+    private void handleListVoters() {
+<span class="nc" id="L165">        List&lt;Voter&gt; voters = service.getVoters();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (voters.isEmpty()) {</span>
+<span class="nc" id="L167">            System.out.println(&quot;⚠️  No voters.&quot;);</span>
+<span class="nc" id="L168">            return;</span>
+        }
+
+<span class="nc" id="L171">        System.out.println(&quot;\n👥 Registered Voters:&quot;);</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        for (Voter v : voters) {</span>
+<span class="nc" id="L173">            System.out.printf(&quot;  - %s (ID: %s)%n&quot;, v.getName(), v.getId());</span>
+<span class="nc" id="L174">        }</span>
+<span class="nc" id="L175">    }</span>
+
+    private void handleReset() {
+<span class="fc" id="L178">        System.out.print(&quot;Are you sure? (yes/no): &quot;);</span>
+<span class="fc" id="L179">        String confirm = scanner.nextLine().trim().toLowerCase();</span>
+
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (confirm.equals(&quot;yes&quot;)) {</span>
+<span class="fc" id="L182">            service.reset();</span>
+<span class="fc" id="L183">            initialize();</span>
+<span class="fc" id="L184">            System.out.println(&quot;✓ System reset&quot;);</span>
+        }
+<span class="fc" id="L186">    }</span>
+
+
+    public static void main(String[] args) {
+        // Factory Pattern : Créer les repositories
+<span class="nc" id="L191">        var voteRepository = RepositoryFactory.createVoteRepository(&quot;memory&quot;);</span>
+<span class="nc" id="L192">        var candidateRepository = RepositoryFactory.createCandidateRepository(&quot;memory&quot;);</span>
+<span class="nc" id="L193">        var voterRepository = RepositoryFactory.createVoterRepository(&quot;memory&quot;);</span>
+
+        // Créer le service avec injection de dépendances
+<span class="nc" id="L196">        var service = new VoteService(voteRepository, candidateRepository, voterRepository);</span>
+
+        // Lancer l'application
+<span class="nc" id="L199">        var app = new VotingApp(service, new Scanner(System.in));</span>
+<span class="nc" id="L200">        app.start();</span>
+<span class="nc" id="L201">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

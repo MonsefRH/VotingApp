@@ -1,7 +1,7 @@
-# 🗳️ VotingApp - Système de Vote 
+#  VotingApp - Système de Vote 
 ---
 
-## 📋 Vue d'ensemble
+##  Vue d'ensemble
 
 VotingApp est un système de vote en ligne moderne construit en Java, transformé d'un code hérité monolithique en une architecture modulaire appliquant 3 design patterns fondamentaux. Le projet inclut une suite de tests complète et un pipeline CI/CD automatisé avec Jenkins et SonarQube.
 
@@ -85,7 +85,7 @@ mvn sonar:sonar \
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ### Structure du projet
 
@@ -123,7 +123,7 @@ src/main/java/org/example/project/
 
 ---
 
-## 🔧 Configuration et Dépendances
+##  Configuration et Dépendances
 
 ### Prérequis
 
@@ -139,7 +139,7 @@ src/main/java/org/example/project/
 
 ---
 
-## 🔄 Pipeline CI/CD
+##  Pipeline CI/CD
 
 ### Architecture
 
@@ -188,7 +188,7 @@ Le projet inclut un `Jenkinsfile` configuré avec 6 stages :
 
 ---
 
-## 📈 Rapports et Résultats
+##  Rapports et Résultats
 
 ### Jenkins Console Output
 
@@ -234,7 +234,7 @@ Coverage par classe (sélection) :
 
 ---
 
-## 📸 Rapports et Dashboards
+##  Rapports et Dashboards
 
 ### Jenkins Pipeline Status
 <img width="1901" height="866" alt="Screenshot 2025-12-17 203251" src="https://github.com/user-attachments/assets/539fe767-dae6-4e6b-a005-4cc0a2deda8c" />
@@ -259,7 +259,7 @@ Coverage par classe (sélection) :
 
 ---
 
-## 🧪 Exécution des Tests
+##  Exécution des Tests
 
 ### Tests unitaires
 
@@ -292,7 +292,7 @@ BUILD SUCCESS
 
 ---
 
-## 🔐 Contrôle de Qualité
+##  Contrôle de Qualité
 
 ### Code Quality Checks
 
@@ -312,7 +312,7 @@ BUILD SUCCESS
 
 ---
 
-## 🚀 Déploiement
+##  Déploiement
 
 ### Build
 
